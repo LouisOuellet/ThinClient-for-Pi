@@ -314,13 +314,15 @@ function install(){
 		exec "echo -e '${PASS}\n${PASS}' | passwd ${USER}"
 	fi
 	# Setup openVPN
-	# cd client/
+	# sudo mkdir -P /etc/openvpn/client
+	# cd /etc/openvpn/client
+	# sudo wget {certifactes and ovpn config file}
 	# sudo chmod 755 *
 	# sudo nano /etc/openvpn/auth.txt
 	# sudo nano /etc/openvpn/raspvpn.conf
-	# sudo service networking restart
 	# sudo systemctl enable openvpn@raspvpn.service
 	# sudo systemctl start openvpn@raspvpn.service
+	# sudo service networking restart
 }
 
 #==============================================================================
