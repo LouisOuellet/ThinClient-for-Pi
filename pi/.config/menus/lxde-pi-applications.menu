@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<!DOCTYPE Menu
+  PUBLIC '-//freedesktop//DTD Menu 1.0//EN'
+  'http://standards.freedesktop.org/menu-spec/menu-1.0.dtd'>
+<Menu>
+        <Name>Applications</Name>
+        <MergeFile type="parent">/etc/xdg/menus/lxde-pi-applications.menu</MergeFile>
+        <Menu>
+                <Name>Development</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Education</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Office</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Internet</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Multimedia</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Graphics</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Games</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Other</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>DesktopSettings</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Help</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Universal Access</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Menu>
+                <Name>Accessories</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+                <Exclude>
+                        <Filename>lxtask.desktop</Filename>
+                </Exclude>
+                <AppDir>/home/pi/.local/share/applications</AppDir>
+                <Exclude>
+                        <Filename>piclone.desktop</Filename>
+                </Exclude>
+                <Exclude>
+                        <Filename>agnostics.desktop</Filename>
+                </Exclude>
+                <Exclude>
+                        <Filename>qpdfview.desktop</Filename>
+                </Exclude>
+                <Exclude>
+                        <Filename>pcmanfm.desktop</Filename>
+                </Exclude>
+                <Exclude>
+                        <Filename>galculator.desktop</Filename>
+                </Exclude>
+                <Exclude>
+                        <Filename>xarchiver.desktop</Filename>
+                </Exclude>
+                <Exclude>
+                        <Filename>mousepad.desktop</Filename>
+                </Exclude>
+        </Menu>
+        <Menu>
+                <Name>System</Name>
+                <DirectoryDir>/home/pi/.local/share/desktop-directories</DirectoryDir>
+        </Menu>
+        <Layout>
+                <Merge type="menus"/>
+                <Menuname>Development</Menuname>
+                <Menuname>Education</Menuname>
+                <Menuname>Office</Menuname>
+                <Menuname>Internet</Menuname>
+                <Menuname>Multimedia</Menuname>
+                <Menuname>Graphics</Menuname>
+                <Menuname>Games</Menuname>
+                <Menuname>Other</Menuname>
+                <Menuname>System</Menuname>
+                <Menuname>Accessories</Menuname>
+                <Menuname>Universal Access</Menuname>
+                <Menuname>Help</Menuname>
+                <Menuname>DesktopSettings</Menuname>
+                <Merge type="files"/>
+        </Layout>
+</Menu>

@@ -1,0 +1,370 @@
+#!/bin/bash
+#==============================================================================
+#TITLE:            RDP
+#DESCRIPTION:      This script makes it easy to connect to older iRDP 6 Controllers and provides a ThinClient experience
+#AUTHOR:           Louis Ouellet
+#DATE:             2020-09-30
+#VERSION:          1.1-0
+
+#==============================================================================
+# CUSTOM SETTINGS
+#==============================================================================
+
+# Initialize Timer
+SECOND=0
+
+# Script name
+scriptname=$(echo $0 | sed -e 's@.*/@@')
+
+# Date
+DATE=$(date +"%Y-%m-%d %H:%M:%S")
+
+# dbg Switch
+DEBUG=false
+
+
+# Log Directory
+if [ "$0" = "./${scriptname}" ];then
+    LOGDIR=log/${scriptname}/
+else
+    LOGDIR=$HOME/log/${scriptname}/
+fi
+if [ ! -d $LOGDIR ];then
+    mkdir -p $LOGDIR
+fi
+
+# Log File
+LgFile="${LOGDIR}$(date +%s%N).log"
+
+# Install Directory && Binary
+INSTDIR=/usr/share/${scriptname}/
+INSTBIN=/usr/bin/${scriptname}
+
+# Default RDP Port
+RDPPORT=3389
+
+# Script Personalisation
+Title=""
+help_options="
+-h                     => Set Hostname
+-u                     => Set Username
+-p                     => Set Password
+-v                     => Enable dbg Mode
+                          Input commands sent are stored in ${LOGDIR}
+"
+help_functions="
+"
+#==============================================================================
+# BASH SETUP
+#==============================================================================
+
+# Set Bash
+set -o pipefail
+set -e
+
+# SETS LOCALE
+# Updated to en_US to support
+#export LC_ALL=en_US.UTF-8 > /dev/null 2>&1 || export LC_ALL=en_GB.UTF-8 > /dev/null 2>&1 || export LC_ALL=C.UTF-8 > /dev/null 2>&1
+
+#==============================================================================
+# FORMATTING
+#==============================================================================
+
+# COLORS
+blackText=$(tput setaf 0)   # Black
+redText=$(tput setaf 1)     # Red
+greenText=$(tput setaf 2)   # Green
+yellowText=$(tput setaf 3)  # Yellow
+blueText=$(tput setaf 4)    # Blue
+magentaText=$(tput setaf 5) # Magenta
+cyanText=$(tput setaf 6)    # Cyan
+whiteText=$(tput setaf 7)   # White
+resetText=$(tput sgr0)      # Reset to default color
+
+# STYLES
+boldText=$(tput bold)
+blinkingText=$(tput blink)
+dimText=$(tput dim)
+
+#==============================================================================
+# Elements
+#==============================================================================
+
+# CHECK BOXES
+checkBoxGood="[${greenText}✓${resetText}]"       # Good
+checkBoxBad="[${redText}✗${resetText}]"          # Bad
+checkBoxQuestion="[${magentaText}?${resetText}]"  # Question / ?
+checkBoxInfo="[${cyanText}i${resetText}]"      # Info / i
+checkBoxOutput="[${yellowText}!${resetText}]"      # Output / !
+
+# STATUS
+StatusOk="${checkBoxGood} System is healthy."
+StatusUpdate="${checkBoxInfo} Updates are available."
+StatusHot="${checkBoxBad} System is hot!"
+StatusUnknown="${checkBoxQuestion} Status unknown!"
+
+# Current Date & Time
+PDATE(){
+	printf "[$(date '+%Y-%m-%d %H:%M:%S')]"
+}
+
+# Log Types
+INFO=$checkBoxInfo
+OUTPUT=$checkBoxOutput
+SUCCESS=$checkBoxGood
+ERROR=$checkBoxBad
+
+# Log Actions
+CHECK="[CHECK]"
+START="[START]"
+RUN="[ RUN ]"
+EMPT="[     ]"
+OUT="[ OUT ]"
+VAR="[ VAR ]"
+#==============================================================================
+# Logger
+#==============================================================================
+
+function help(){
+  if [ $DEBUG = "true" ]; then
+    echo "Help" | dbg i s
+  fi
+  echo -e "
+Usage: $scriptname [options]
+
+Options:
+$help_options
+"
+}
+
+function fatal(){
+  printf "FATAL ERROR: $1\n"
+  help
+  exit 0
+}
+
+function dbg(){
+  if [ "$1" != "" ] && [ "$2" != "" ]; then
+    case "$1" in
+      info|i)
+        TYPE=$INFO
+        ;;
+      success|s)
+        TYPE=$SUCCESS
+        ;;
+      error|e)
+        TYPE=$ERROR
+        ;;
+      output|o)
+        TYPE=$OUTPUT
+        ;;
+      question|q)
+        TYPE=$checkBoxQuestion
+        ;;
+    esac
+    case "$2" in
+      check|c|test|t)
+        ACTION=$CHECK
+        ;;
+      start|s)
+        ACTION=$START
+        ;;
+      run|r)
+        ACTION=$RUN
+        ;;
+      empty|e)
+        ACTION=$EMPT
+        ;;
+      output|o)
+        ACTION=$OUT
+        ;;
+      variable|var|v)
+        ACTION=$VAR
+        ;;
+    esac
+    while read DCMD; do
+      LogFile=$LgFile
+      if [ "$3" != "" ]; then
+        LogFile=$3
+      fi
+      if [ $DEBUG = "true" ]; then
+        printf "${TYPE}$(PDATE)${ACTION} ${DCMD}\n" | tee -a $LogFile
+      else
+        printf "${TYPE}$(PDATE)${ACTION} ${DCMD}\n"
+      fi
+    done
+  else
+    fatal "Missing Argument(s)"
+  fi
+}
+
+function exec(){
+  if [ "$1" != "" ]; then
+    if [ $DEBUG = "true" ]; then
+      echo "exec $1" | dbg i s
+      if eval $1 2>&1 | dbg o o;then
+        echo "$1" | dbg s r
+      else
+        echo "$1" | dbg e r
+      fi
+    else
+      eval $1
+    fi
+  else
+    fatal "Missing Argument(s)"
+  fi
+}
+
+function pkg(){
+  if [ "$1" != "" ]; then
+    if [ $DEBUG = "true" ]; then
+      echo "pkg $1" | dbg i s
+    fi
+    if [ $(dpkg-query -W -f='${Status}' $1 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+      exec "sudo apt-get update"
+      exec "sudo apt-get install $1 -y"
+    fi
+  else
+    fatal "Missing Argument(s)"
+  fi
+}
+
+function install(){
+	exec "sudo apt-get update && sudo sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt autoremove -y"
+	exec "sudo apt-get remove -y realvnc-vnc-server"
+	cd /tmp
+	pkg freerdp2-x11
+	pkg zenity
+	pkg yad
+	pkg nmap
+	pkg git
+	pkg net-tools
+	pkg fping
+	pkg openvpn
+	pkg openvpn-systemd-resolved
+	pkg jq
+	exec "wget https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb"
+	exec "sudo dpkg -i teamviewer-host_armhf.deb"
+	exec "sudo apt --fix-broken install -y"
+	exec "sudo rm teamviewer-host_armhf.deb"
+	cd /opt
+	exec "sudo rm -r /opt/ThinClient-for-Pi"
+	exec "sudo git clone https://github.com/LouisOuellet/ThinClient-for-Pi"
+	exec "sudo rm -r /opt/bashrc"
+	exec "sudo git clone https://github.com/LouisOuellet/bashrc"
+	exec "sudo chmod -R 755 bashrc"
+	exec "sudo rm -r /opt/rdp"
+	exec "sudo git clone https://github.com/LouisOuellet/rdp"
+	exec "sudo chmod -R 755 rdp"
+	cd rdp
+	exec "/bin/bash rdp -i"
+	# Configure System Services
+	exec "sudo systemctl disable vncserver"
+	exec "sudo systemctl disable openvpn"
+	exec "sudo systemctl enable ssh"
+	# Configure FAN GPIO
+	# Enable HDMI-0
+	exec "echo 'hdmi_force_hotplug=1' | sudo tee -a /boot/config.txt"
+	exec "echo 'hdmi_drive=2' | sudo tee -a /boot/config.txt"
+	# Remove Black Borders
+	exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
+	# Configure pi User
+	cd /home/pi/
+	exec "sudo rm -r /home/pi/.*"
+	exec "sudo rm -r /home/pi/*"
+	exec "sudo cp -r /opt/ThinClient-for-Pi/pi/.config /home/pi/."
+	exec "mkdir -P Desktop"
+	exec "mkdir -P Downloads"
+	exec "sudo ln -s /opt/bashrc/.bashrc /home/pi/.bashrc"
+	exec "sudo ln -s /opt/bashrc/.bash_profile /home/pi/.bash_profile"
+	exec "sudo ln -s /opt/bashrc/.bash_logout /home/pi/.bash_logout"
+	exec "echo 'rdp -mklng' > /home/pi/.bash_aliases"
+	exec "sudo chmod 755 /home/pi/.bash_aliases"
+	exec "sudo chown -R pi:pi /home/pi"
+	# Setup Skel
+	cd /etc/skel
+	exec "sudo cp -r /opt/ThinClient-for-Pi/skel/.config /etc/skel/."
+	exec "sudo mkdir -P Desktop"
+	exec "sudo mkdir -P Downloads"
+	exec "sudo ln -s /opt/bashrc/.bashrc /etc/skel/.bashrc"
+	exec "sudo ln -s /opt/bashrc/.bash_profile /etc/skel/.bash_profile"
+	exec "sudo ln -s /opt/bashrc/.bash_logout /etc/skel/.bash_logout"
+	exec "sudo ln -s /opt/bashrc/.bash_aliases /etc/skel/.bash_aliases"
+	#configuring root bash
+	exec "sudo ln -s /opt/bashrc/.bashrc /root/.bashrc"
+	exec "sudo ln -s /opt/bashrc/.bash_profile /root/.bash_profile"
+	exec "sudo ln -s /opt/bashrc/.bash_logout /root/.bash_logout"
+	exec "sudo ln -s /opt/bashrc/.bash_aliases /root/.bash_aliases"
+	# Changing Hostname
+	if [ "${HOST}" == "" ]; then
+		HOST="Client-$((100000 + RANDOM % 999999))"
+	fi
+	exec "sudo cat /etc/hosts | sed -e 's/${HOSTNAME}/${HOST}/g' | sudo tee /etc/hosts"
+	exec "sudo cat /etc/hostname | sed -e 's/${HOSTNAME}/${HOST}/g' | sudo tee /etc/hostname"
+	# Securing
+	if [ "${USER}" != "" ]; then
+		exec "sudo adduser ${USER}"
+		exec "sudo usermod -aG sudo ${USER}"
+		exec "sudo deluser pi sudo"
+		exec "sudo chown ${USER}:${USER} {/home/pi/.bashrc,/home/pi/.bash_profile,/home/pi/.bash_logout,/home/pi/.bash_aliases}"
+		exec "sudo rm /etc/sudoers.d/010_pi-nopasswd"
+		if [ "${PASS}" == "" ]; then
+			PASS=$(openssl rand -base64 32)
+		fi
+		exec "echo -e '${PASS}\n${PASS}' | passwd ${USER}"
+	fi
+	# Setup openVPN
+	# cd client/
+	# sudo chmod 755 *
+	# sudo nano /etc/openvpn/auth.txt
+	# sudo nano /etc/openvpn/raspvpn.conf
+	# sudo service networking restart
+	# sudo systemctl enable openvpn@raspvpn.service
+	# sudo systemctl start openvpn@raspvpn.service
+}
+
+#==============================================================================
+# RUN OPTIONS & FUNCTIONS
+#==============================================================================
+
+if [ "$0" != "./${scriptname}" ];then
+  fatal "Script must be run from source folder."
+fi
+
+while getopts ":vu:p:h:" option
+	do
+	case "${option}"
+		in
+			v) DEBUG=true;;
+			u) USER=$OPTARG;;
+			p) PASS=$OPTARG;;
+			h) HOST=$OPTARG;;
+			\? )
+				echo "Invalid option: $OPTARG" 1>&2
+          help
+          exit 0
+				;;
+			: )
+				echo "Invalid option: $OPTARG requires an argument" 1>&2
+          help
+          exit 0
+				;;
+	esac
+done
+shift $((OPTIND -1))
+
+#==============================================================================
+# RUN SCRIPT
+#==============================================================================
+
+install
+
+echo "Hostname: ${HOST}" | dbg i v
+if [ "${USER}" != "" ]; then
+	echo "Administrator: ${USER}" | dbg i v
+	echo "Password: ${PASS}" | dbg i v
+fi
+
+echo "Installation completed, you can now reboot your Pi" | dbg i s
+
+exit 0
