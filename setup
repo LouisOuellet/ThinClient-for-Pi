@@ -270,8 +270,8 @@ function install(){
 	exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
 	# Configure pi User
 	cd /home/pi/
-	exec "sudo rm -r /home/pi/.*"
-	exec "sudo rm -r /home/pi/*"
+	exec "sudo rm -r .*"
+	exec "sudo rm -r *"
 	exec "sudo cp -r /opt/ThinClient-for-Pi/pi/.config /home/pi/."
 	exec "mkdir -P Desktop"
 	exec "mkdir -P Downloads"
@@ -291,6 +291,9 @@ function install(){
 	exec "sudo ln -s /opt/bashrc/.bash_logout /etc/skel/.bash_logout"
 	exec "sudo ln -s /opt/bashrc/.bash_aliases /etc/skel/.bash_aliases"
 	#configuring root bash
+	cd /root
+	exec "sudo rm -r .*"
+	exec "sudo rm -r *"
 	exec "sudo ln -s /opt/bashrc/.bashrc /root/.bashrc"
 	exec "sudo ln -s /opt/bashrc/.bash_profile /root/.bash_profile"
 	exec "sudo ln -s /opt/bashrc/.bash_logout /root/.bash_logout"
