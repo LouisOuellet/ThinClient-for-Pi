@@ -1,9 +1,9 @@
 #!/bin/bash
 #==============================================================================
-#TITLE:            RDP
-#DESCRIPTION:      This script makes it easy to connect to older iRDP 6 Controllers and provides a ThinClient experience
+#TITLE:            ThinClient for Pi
+#DESCRIPTION:      This script makes it easy to setup a Pi as a RDP Thin Client
 #AUTHOR:           Louis Ouellet
-#DATE:             2020-09-30
+#DATE:             2021-02-16
 #VERSION:          1.1-0
 
 #==============================================================================
@@ -40,15 +40,13 @@ LgFile="${LOGDIR}$(date +%s%N).log"
 INSTDIR=/usr/share/${scriptname}/
 INSTBIN=/usr/bin/${scriptname}
 
-# Default RDP Port
-RDPPORT=3389
-
 # Script Personalisation
 Title=""
 help_options="
 -h                     => Set Hostname
 -u                     => Set Username
 -p                     => Set Password
+-o                     => Set openVPN
 -v                     => Enable dbg Mode
                           Input commands sent are stored in ${LOGDIR}
 "
@@ -317,15 +315,18 @@ function install(){
 		exec "echo -e '${PASS}\n${PASS}' | passwd ${USER}"
 	fi
 	# Setup openVPN
-	# sudo mkdir -P /etc/openvpn/client
-	# cd /etc/openvpn/client
-	# sudo wget {certifactes and ovpn config file}
-	# sudo chmod 755 *
-	# sudo nano /etc/openvpn/auth.txt
-	# sudo nano /etc/openvpn/raspvpn.conf
-	# sudo systemctl enable openvpn@raspvpn.service
-	# sudo systemctl start openvpn@raspvpn.service
-	# sudo service networking restart
+	if [ "${OVPN}" != "" ]; then
+		# sudo mkdir -P /etc/openvpn/client
+		# cd /etc/openvpn/client
+		# sudo wget {certificates and ovpn config file}
+		# sudo chmod 755 *
+		# sudo nano /etc/openvpn/auth.txt
+		# sudo nano /etc/openvpn/raspvpn.conf
+		# sudo chmod 600 /etc/openvpn/auth.txt
+		# sudo systemctl enable openvpn@raspvpn.service
+		# sudo systemctl start openvpn@raspvpn.service
+		# sudo service networking restart
+	fi
 }
 
 #==============================================================================
@@ -336,7 +337,7 @@ if [ "$0" != "./${scriptname}" ];then
   fatal "Script must be run from source folder."
 fi
 
-while getopts ":vu:p:h:" option
+while getopts ":vu:p:h:o:" option
 	do
 	case "${option}"
 		in
@@ -344,6 +345,7 @@ while getopts ":vu:p:h:" option
 			u) USER=$OPTARG;;
 			p) PASS=$OPTARG;;
 			h) HOST=$OPTARG;;
+			o) OVPN=$OPTARG;;
 			\? )
 				echo "Invalid option: $OPTARG" 1>&2
           help

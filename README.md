@@ -29,3 +29,7 @@ Options:
 -v                     => Enable dbg Mode
                           Input commands sent are stored in log/setup/
 ```
+
+## Changelog
+
+ * [2021-02-16] - Corrected the Information in the beginning of the script
