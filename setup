@@ -47,7 +47,7 @@ help_options="
 -u                     => Set Username
 -p                     => Set Password
 -o                     => Set openVPN
--v                     => Enable dbg Mode
+-v                     => Enable Verbose Mode
                           Input commands sent are stored in ${LOGDIR}
 "
 help_functions="
@@ -238,6 +238,7 @@ function install(){
 	pkg git
 	pkg net-tools
 	pkg fping
+	pkg unzip
 	pkg openvpn
 	pkg openvpn-systemd-resolved
 	pkg jq
@@ -316,16 +317,24 @@ function install(){
 	fi
 	# Setup openVPN
 	if [ "${OVPN}" != "" ]; then
-		# sudo mkdir -P /etc/openvpn/client
-		# cd /etc/openvpn/client
-		# sudo wget {certificates and ovpn config file}
-		# sudo chmod 755 *
+		exec "sudo mkdir -P /etc/openvpn/client"
+		exec "mv ${OVPN} /etc/openvpn/client/."
+		cd /etc/openvpn/client
+		if [[ ${OVPN} == *".tar.gz" ]]; then
+			exec "tar -xzvf *.tar.gz"
+		else if [[ ${OVPN} == *".tar.bz2" ]]; then
+			exec "tar -xjvf *.tar.bz2"
+		else if [[ ${OVPN} == *".zip" ]]; then
+			exec "unzip *.zip"
+		fi
+		exec "sudo rm {*.zip,*.tar,*.tar.gz,*.tar.bz2}"
+		exec "sudo chmod 600 /etc/openvpn/client/*"
+		exec "sudo cat *.ovpn | tee /etc/openvpn/raspvpn.conf"
 		# sudo nano /etc/openvpn/auth.txt
-		# sudo nano /etc/openvpn/raspvpn.conf
 		# sudo chmod 600 /etc/openvpn/auth.txt
-		# sudo systemctl enable openvpn@raspvpn.service
-		# sudo systemctl start openvpn@raspvpn.service
-		# sudo service networking restart
+		exec "sudo systemctl enable openvpn@raspvpn.service"
+		exec "sudo systemctl start openvpn@raspvpn.service"
+		exec "sudo service networking restart"
 	fi
 }
 
@@ -337,8 +346,7 @@ if [ "$0" != "./${scriptname}" ];then
   fatal "Script must be run from source folder."
 fi
 
-while getopts ":vu:p:h:o:" option
-	do
+while getopts ":vu:p:h:o:" option; do
 	case "${option}"
 		in
 			v) DEBUG=true;;

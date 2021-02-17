@@ -26,10 +26,11 @@ Options:
 -h                     => Set Hostname
 -u                     => Set Username
 -p                     => Set Password
--v                     => Enable dbg Mode
+-o                     => Set openVPN
+-v                     => Enable Verbose Mode
                           Input commands sent are stored in log/setup/
 ```
 
 ## Changelog
 
- * [2021-02-16] - Corrected the Information in the beginning of the script
+ * [2021-02-16] - Corrected credits in the beginning of the script. I originally copied another script and simply started modifying the functions.
