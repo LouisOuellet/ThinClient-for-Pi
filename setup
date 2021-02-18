@@ -24,21 +24,13 @@ DEBUG=false
 
 
 # Log Directory
-if [ "$0" = "./${scriptname}" ];then
-    LOGDIR=log/${scriptname}/
-else
-    LOGDIR=$HOME/log/${scriptname}/
-fi
+LOGDIR=/tmp/log/${scriptname}/
 if [ ! -d $LOGDIR ];then
     mkdir -p $LOGDIR
 fi
 
 # Log File
 LgFile="${LOGDIR}$(date +%s%N).log"
-
-# Install Directory && Binary
-INSTDIR=/usr/share/${scriptname}/
-INSTBIN=/usr/bin/${scriptname}
 
 # Script Personalisation
 Title=""
