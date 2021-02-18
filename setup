@@ -305,9 +305,10 @@ function install(){
 	exec "sudo cat /etc/hostname | sed -e 's/${HOSTNAME}/${HOST}/g' | sudo tee /etc/hostname"
 	# Securing
 	if [ "${USER}" != "" ]; then
-		exec "sudo adduser ${USER}"
+		exec "sudo adduser --disabled-password --gecos "" ${USER}"
 		exec "sudo usermod -aG sudo ${USER}"
 		exec "sudo deluser pi sudo"
+		exec "sudo passwd pi -d"
 		exec "sudo chown ${USER}:${USER} {/home/pi/.bashrc,/home/pi/.bash_profile,/home/pi/.bash_logout,/home/pi/.bash_aliases}"
 		exec "sudo rm /etc/sudoers.d/010_pi-nopasswd"
 		if [ "${PASS}" == "" ]; then
