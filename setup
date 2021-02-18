@@ -222,6 +222,7 @@ function pkg(){
 function install(){
 	exec "sudo apt-get update && sudo sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt autoremove -y"
 	exec "sudo apt-get remove -y realvnc-vnc-server"
+	echo "cd /tmp" | dbg i r
 	cd /tmp
 	pkg freerdp2-x11
 	pkg zenity
@@ -238,6 +239,7 @@ function install(){
 	exec "sudo dpkg -i teamviewer-host_armhf.deb"
 	exec "sudo apt --fix-broken install -y"
 	exec "sudo rm teamviewer-host_armhf.deb"
+	echo "cd /opt" | dbg i r
 	cd /opt
 	exec "sudo rm -r /opt/ThinClient-for-Pi"
 	exec "sudo git clone https://github.com/LouisOuellet/ThinClient-for-Pi"
@@ -247,6 +249,7 @@ function install(){
 	exec "sudo rm -r /opt/rdp"
 	exec "sudo git clone https://github.com/LouisOuellet/rdp"
 	exec "sudo chmod -R 755 rdp"
+	echo "cd /opt/rdp" | dbg i r
 	cd /opt/rdp
 	exec "sudo ./rdp -i"
 	# Configure System Services
@@ -260,10 +263,11 @@ function install(){
 	# Remove Black Borders
 	exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
 	# Configure pi User
+	echo "cd /home/pi/" | dbg i r
 	cd /home/pi/
-	exec "sudo rm -r .*"
-	exec "sudo rm -r *"
-	exec "sudo cp -r /opt/ThinClient-for-Pi/pi/.config /home/pi/."
+	exec "sudo rm -vr .*"
+	exec "sudo rm -vr *"
+	exec "sudo cp -vr /opt/ThinClient-for-Pi/pi/.config /home/pi/."
 	exec "sudo mkdir -P /home/pi/Desktop"
 	exec "sudo mkdir -P /home/pi/Downloads"
 	exec "sudo ln -s /opt/bashrc/.bashrc /home/pi/.bashrc"
@@ -273,10 +277,11 @@ function install(){
 	exec "sudo chmod 755 /home/pi/.bash_aliases"
 	exec "sudo chown -R pi:pi /home/pi"
 	# Setup Skel
+	echo "cd /etc/skel/" | dbg i r
 	cd /etc/skel
-	exec "sudo rm -r .*"
-	exec "sudo rm -r *"
-	exec "sudo cp -r /opt/ThinClient-for-Pi/skel/.config /etc/skel/."
+	exec "sudo rm -vr .*"
+	exec "sudo rm -vr *"
+	exec "sudo cp -vr /opt/ThinClient-for-Pi/skel/.config /etc/skel/."
 	exec "sudo mkdir -P /etc/skel/Desktop"
 	exec "sudo mkdir -P /etc/skel/Downloads"
 	exec "sudo ln -s /opt/bashrc/.bashrc /etc/skel/.bashrc"
@@ -284,9 +289,10 @@ function install(){
 	exec "sudo ln -s /opt/bashrc/.bash_logout /etc/skel/.bash_logout"
 	exec "sudo ln -s /opt/bashrc/.bash_aliases /etc/skel/.bash_aliases"
 	#configuring root bash
+	echo "cd /root" | dbg i r
 	cd /root
-	exec "sudo rm -r .*"
-	exec "sudo rm -r *"
+	exec "sudo rm -vr .*"
+	exec "sudo rm -vr *"
 	exec "sudo ln -s /opt/bashrc/.bashrc /root/.bashrc"
 	exec "sudo ln -s /opt/bashrc/.bash_profile /root/.bash_profile"
 	exec "sudo ln -s /opt/bashrc/.bash_logout /root/.bash_logout"
