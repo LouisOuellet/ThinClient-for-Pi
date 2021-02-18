@@ -235,6 +235,7 @@ function install(){
 	pkg openvpn
 	pkg openvpn-systemd-resolved
 	pkg jq
+	pkg dnsutils
 	exec "wget https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb"
 	exec "sudo dpkg -i teamviewer-host_armhf.deb"
 	exec "sudo apt --fix-broken install -y"
@@ -259,16 +260,16 @@ function install(){
 	exec "sudo systemctl disable vncserver"
 	exec "sudo systemctl disable openvpn"
 	exec "sudo systemctl enable ssh"
-	# Configure FAN GPIO
-	# Enable HDMI-0
-	if ! grep -q 'hdmi_force_hotplug=1' "/boot/config.txt"; then
-		exec "echo 'hdmi_force_hotplug=1' | sudo tee -a /boot/config.txt"
-	fi
-	if ! grep -q 'hdmi_drive=2' "/boot/config.txt"; then
-		exec "echo 'hdmi_drive=2' | sudo tee -a /boot/config.txt"
-	fi
-	# Remove Black Borders
-	exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
+	# # Configure FAN GPIO
+	# # Enable HDMI-0
+	# if ! grep -q 'hdmi_force_hotplug=1' "/boot/config.txt"; then
+	# 	exec "echo 'hdmi_force_hotplug=1' | sudo tee -a /boot/config.txt"
+	# fi
+	# if ! grep -q 'hdmi_drive=2' "/boot/config.txt"; then
+	# 	exec "echo 'hdmi_drive=2' | sudo tee -a /boot/config.txt"
+	# fi
+	# # Remove Black Borders
+	# exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
 	# Configure pi User
 	echo "cd /home/pi/" | dbg i r
 	cd /home/pi/
