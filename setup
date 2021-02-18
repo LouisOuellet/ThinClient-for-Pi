@@ -251,6 +251,9 @@ function install(){
 	exec "sudo chmod -R 755 rdp"
 	echo "cd /opt/rdp" | dbg i r
 	cd /opt/rdp
+	if [ -f "/usr/bin/rdp" ]; then
+		exec "sudo ./rdp -r"
+	fi
 	exec "sudo ./rdp -i"
 	# Configure System Services
 	exec "sudo systemctl disable vncserver"
@@ -258,8 +261,12 @@ function install(){
 	exec "sudo systemctl enable ssh"
 	# Configure FAN GPIO
 	# Enable HDMI-0
-	exec "echo 'hdmi_force_hotplug=1' | sudo tee -a /boot/config.txt"
-	exec "echo 'hdmi_drive=2' | sudo tee -a /boot/config.txt"
+	if ! grep -q 'hdmi_force_hotplug=1' "/boot/config.txt"; then
+		exec "echo 'hdmi_force_hotplug=1' | sudo tee -a /boot/config.txt"
+	fi
+	if ! grep -q 'hdmi_drive=2' "/boot/config.txt"; then
+		exec "echo 'hdmi_drive=2' | sudo tee -a /boot/config.txt"
+	fi
 	# Remove Black Borders
 	exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
 	# Configure pi User
@@ -305,7 +312,7 @@ function install(){
 	exec "sudo cat /etc/hostname | sed -e 's/${HOSTNAME}/${HOST}/g' | sudo tee /etc/hostname"
 	# Securing
 	if [ "${USER}" != "" ]; then
-		exec "sudo adduser --disabled-password --gecos "" ${USER}"
+		exec "sudo adduser --disabled-password --gecos '' ${USER}"
 		exec "sudo usermod -aG sudo ${USER}"
 		exec "sudo deluser pi sudo"
 		exec "sudo passwd pi -d"

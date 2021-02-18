@@ -33,6 +33,10 @@ Options:
 
 ## Changelog
 
+ * [2021-02-18] - Added the uninstallation of rdp if already install
+ * [2021-02-18] - Added verifications on /boot/config.txt before modifying it
+ * [2021-02-18] - Corrected a typo when running all mkdir command. was using P instead of p.
+ * [2021-02-18] - Added --disabled-password --gecos '' to the creation of user to run adduser non-interactively
  * [2021-02-18] - If debug Verbose mode is active, the script will now tell you where the log is saved
  * [2021-02-18] - Now empties the /etc/skel directory before starting the its setup
  * [2021-02-18] - Added sudo to mkdir commands
