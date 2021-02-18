@@ -268,8 +268,8 @@ function install(){
 	exec "sudo rm -vr .*"
 	exec "sudo rm -vr *"
 	exec "sudo cp -vr /opt/ThinClient-for-Pi/pi/.config /home/pi/."
-	exec "sudo mkdir -P /home/pi/Desktop"
-	exec "sudo mkdir -P /home/pi/Downloads"
+	exec "sudo mkdir -p /home/pi/Desktop"
+	exec "sudo mkdir -p /home/pi/Downloads"
 	exec "sudo ln -s /opt/bashrc/.bashrc /home/pi/.bashrc"
 	exec "sudo ln -s /opt/bashrc/.bash_profile /home/pi/.bash_profile"
 	exec "sudo ln -s /opt/bashrc/.bash_logout /home/pi/.bash_logout"
@@ -282,8 +282,8 @@ function install(){
 	exec "sudo rm -vr .*"
 	exec "sudo rm -vr *"
 	exec "sudo cp -vr /opt/ThinClient-for-Pi/skel/.config /etc/skel/."
-	exec "sudo mkdir -P /etc/skel/Desktop"
-	exec "sudo mkdir -P /etc/skel/Downloads"
+	exec "sudo mkdir -p /etc/skel/Desktop"
+	exec "sudo mkdir -p /etc/skel/Downloads"
 	exec "sudo ln -s /opt/bashrc/.bashrc /etc/skel/.bashrc"
 	exec "sudo ln -s /opt/bashrc/.bash_profile /etc/skel/.bash_profile"
 	exec "sudo ln -s /opt/bashrc/.bash_logout /etc/skel/.bash_logout"
@@ -317,7 +317,7 @@ function install(){
 	fi
 	# Setup openVPN
 	if [ "${OVPN}" != "" ]; then
-		exec "sudo mkdir -P /etc/openvpn/client"
+		exec "sudo mkdir -p /etc/openvpn/client"
 		exec "mv ${OVPN} /etc/openvpn/client/."
 		cd /etc/openvpn/client
 		if [[ ${OVPN} == *".tar.gz" ]]; then
@@ -358,13 +358,13 @@ while getopts ":vu:p:h:o:" option; do
 			o) OVPN=$OPTARG;;
 			\? )
 				echo "Invalid option: $OPTARG" 1>&2
-          help
-          exit 0
+        help
+        exit 0
 				;;
 			: )
 				echo "Invalid option: $OPTARG requires an argument" 1>&2
-          help
-          exit 0
+        help
+        exit 0
 				;;
 	esac
 done
@@ -373,6 +373,10 @@ shift $((OPTIND -1))
 #==============================================================================
 # RUN SCRIPT
 #==============================================================================
+
+if [[ $EUID -ne 0 ]]; then
+   fatal "This script must be run as root"
+fi
 
 install
 
