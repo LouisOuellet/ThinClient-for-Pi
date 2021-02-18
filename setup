@@ -322,9 +322,11 @@ function install(){
 		cd /etc/openvpn/client
 		if [[ ${OVPN} == *".tar.gz" ]]; then
 			exec "tar -xzvf *.tar.gz"
-		else if [[ ${OVPN} == *".tar.bz2" ]]; then
+		fi
+		if [[ ${OVPN} == *".tar.bz2" ]]; then
 			exec "tar -xjvf *.tar.bz2"
-		else if [[ ${OVPN} == *".zip" ]]; then
+		fi
+		if [[ ${OVPN} == *".zip" ]]; then
 			exec "unzip *.zip"
 		fi
 		exec "sudo rm {*.zip,*.tar,*.tar.gz,*.tar.bz2}"
