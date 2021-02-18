@@ -33,6 +33,7 @@ Options:
 
 ## Changelog
 
+ * [2021-02-18] - Added the package dnsutils to the installation process
  * [2021-02-18] - Added the uninstallation of rdp if already install
  * [2021-02-18] - Added verifications on /boot/config.txt before modifying it
  * [2021-02-18] - Corrected a typo when running all mkdir command. was using P instead of p.
