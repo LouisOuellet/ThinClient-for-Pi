@@ -33,5 +33,6 @@ Options:
 
 ## Changelog
 
+ * [2021-02-18] - Corrected an error with the log directory variable. Causing it to constantly change and thus stopping the script due to missing file error.
  * [2021-02-18] - Corrected an error in the openVPN setup. I was trying a else if, but bash did not seem to tolerate it. The openVPN setup should not be attempted yet. Since it is not complete.
  * [2021-02-16] - Corrected credits in the beginning of the script. I originally copied another script and simply started modifying the functions.

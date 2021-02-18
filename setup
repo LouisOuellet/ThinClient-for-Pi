@@ -247,8 +247,8 @@ function install(){
 	exec "sudo rm -r /opt/rdp"
 	exec "sudo git clone https://github.com/LouisOuellet/rdp"
 	exec "sudo chmod -R 755 rdp"
-	cd rdp
-	exec "/bin/bash rdp -i"
+	cd /opt/rdp
+	exec "sudo ./rdp -i"
 	# Configure System Services
 	exec "sudo systemctl disable vncserver"
 	exec "sudo systemctl disable openvpn"
@@ -264,8 +264,8 @@ function install(){
 	exec "sudo rm -r .*"
 	exec "sudo rm -r *"
 	exec "sudo cp -r /opt/ThinClient-for-Pi/pi/.config /home/pi/."
-	exec "mkdir -P Desktop"
-	exec "mkdir -P Downloads"
+	exec "sudo mkdir -P /home/pi/Desktop"
+	exec "sudo mkdir -P /home/pi/Downloads"
 	exec "sudo ln -s /opt/bashrc/.bashrc /home/pi/.bashrc"
 	exec "sudo ln -s /opt/bashrc/.bash_profile /home/pi/.bash_profile"
 	exec "sudo ln -s /opt/bashrc/.bash_logout /home/pi/.bash_logout"
@@ -274,9 +274,11 @@ function install(){
 	exec "sudo chown -R pi:pi /home/pi"
 	# Setup Skel
 	cd /etc/skel
+	exec "sudo rm -r .*"
+	exec "sudo rm -r *"
 	exec "sudo cp -r /opt/ThinClient-for-Pi/skel/.config /etc/skel/."
-	exec "sudo mkdir -P Desktop"
-	exec "sudo mkdir -P Downloads"
+	exec "sudo mkdir -P /etc/skel/Desktop"
+	exec "sudo mkdir -P /etc/skel/Downloads"
 	exec "sudo ln -s /opt/bashrc/.bashrc /etc/skel/.bashrc"
 	exec "sudo ln -s /opt/bashrc/.bash_profile /etc/skel/.bash_profile"
 	exec "sudo ln -s /opt/bashrc/.bash_logout /etc/skel/.bash_logout"
@@ -372,6 +374,9 @@ echo "Hostname: ${HOST}" | dbg i v
 if [ "${USER}" != "" ]; then
 	echo "Administrator: ${USER}" | dbg i v
 	echo "Password: ${PASS}" | dbg i v
+fi
+if [ $DEBUG = "true" ]; then
+	echo "Log File: ${LogFile}" | dbg i v
 fi
 
 echo "Installation completed, you can now reboot your Pi" | dbg i s
