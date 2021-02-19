@@ -220,8 +220,9 @@ function pkg(){
 }
 
 function install(){
+	exec "sudo apt-get remove -y realvnc-vnc-server geany geany-common thonny dillo vlc vlc-* gpicview geoclue-2.0 galculator qpdfview qpdfview-* mousepad rp-bookshelf debian-reference-en debian-reference-common"
+	exec "sudo apt autoremove -y"
 	exec "sudo apt-get update && sudo sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt autoremove -y"
-	exec "sudo apt-get remove -y realvnc-vnc-server"
 	echo "cd /tmp" | dbg i r
 	cd /tmp
 	pkg freerdp2-x11
@@ -239,6 +240,8 @@ function install(){
 	exec "wget https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb"
 	exec "sudo dpkg -i teamviewer-host_armhf.deb"
 	exec "sudo apt --fix-broken install -y"
+	TPASS=$(openssl rand -base64 12)
+	exec "sudo teamviewer --passwd \"${TPASS}\""
 	exec "sudo rm teamviewer-host_armhf.deb"
 	echo "cd /opt" | dbg i r
 	cd /opt
@@ -260,7 +263,7 @@ function install(){
 	exec "sudo systemctl disable vncserver"
 	exec "sudo systemctl disable openvpn"
 	exec "sudo systemctl enable ssh"
-	# # Configure FAN GPIO
+	# Configure FAN GPIO
 	# # Enable HDMI-0
 	# if ! grep -q 'hdmi_force_hotplug=1' "/boot/config.txt"; then
 	# 	exec "echo 'hdmi_force_hotplug=1' | sudo tee -a /boot/config.txt"
@@ -268,14 +271,15 @@ function install(){
 	# if ! grep -q 'hdmi_drive=2' "/boot/config.txt"; then
 	# 	exec "echo 'hdmi_drive=2' | sudo tee -a /boot/config.txt"
 	# fi
-	# # Remove Black Borders
-	# exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
+	# Remove Black Borders
+	exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
 	# Configure pi User
 	echo "cd /home/pi/" | dbg i r
 	cd /home/pi/
 	exec "sudo rm -vr .*"
 	exec "sudo rm -vr *"
 	exec "sudo cp -vr /opt/ThinClient-for-Pi/pi/.config /home/pi/."
+	exec "sudo cp -vr /opt/ThinClient-for-Pi/pi/.local /home/pi/."
 	exec "sudo mkdir -p /home/pi/Desktop"
 	exec "sudo mkdir -p /home/pi/Downloads"
 	exec "sudo ln -s /opt/bashrc/.bashrc /home/pi/.bashrc"
@@ -320,7 +324,7 @@ function install(){
 		exec "sudo chown ${USER}:${USER} {/home/pi/.bashrc,/home/pi/.bash_profile,/home/pi/.bash_logout,/home/pi/.bash_aliases}"
 		exec "sudo rm /etc/sudoers.d/010_pi-nopasswd"
 		if [ "${PASS}" == "" ]; then
-			PASS=$(openssl rand -base64 32)
+			PASS=$(openssl rand -base64 12)
 		fi
 		exec "echo -e '${PASS}\n${PASS}' | passwd ${USER}"
 	fi
@@ -390,12 +394,14 @@ fi
 install
 
 echo "Hostname: ${HOST}" | dbg i v
+echo "TeamViewer ID: $(sudo teamviewer --info | grep 'TeamViewer ID' | awk '{ print $5 }')" | dbg i v
+echo "TeamViewer Password: ${TPASS}" | dbg i v
 if [ "${USER}" != "" ]; then
 	echo "Administrator: ${USER}" | dbg i v
 	echo "Password: ${PASS}" | dbg i v
 fi
 if [ $DEBUG = "true" ]; then
-	echo "Log File: ${LogFile}" | dbg i v
+	echo "Log File: ${LgFile}" | dbg i v
 fi
 
 echo "Installation completed, you can now reboot your Pi" | dbg i s

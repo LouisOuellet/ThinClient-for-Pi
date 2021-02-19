@@ -33,6 +33,11 @@ Options:
 
 ## Changelog
 
+ * [2021-02-19] - Corrected the logfile variable output.
+ * [2021-02-19] - Displaying the TeamViewer ID and Password at the end of the installation
+ * [2021-02-19] - Adding the configuration of a local password for TeamViewer
+ * [2021-02-19] - Adding customization of the LXDE menu & panel
+ * [2021-02-19] - Cleaning applications before updating the system.
  * [2021-02-18] - Added the package dnsutils to the installation process
  * [2021-02-18] - Added the uninstallation of rdp if already install
  * [2021-02-18] - Added verifications on /boot/config.txt before modifying it
