@@ -54,7 +54,7 @@ set -e
 
 # SETS LOCALE
 # Updated to en_US to support
-#export LC_ALL=en_US.UTF-8 > /dev/null 2>&1 || export LC_ALL=en_GB.UTF-8 > /dev/null 2>&1 || export LC_ALL=C.UTF-8 > /dev/null 2>&1
+export LC_ALL=en_US.UTF-8 > /dev/null 2>&1# || export LC_ALL=en_GB.UTF-8 > /dev/null 2>&1 || export LC_ALL=C.UTF-8 > /dev/null 2>&1
 
 #==============================================================================
 # FORMATTING
@@ -222,7 +222,7 @@ function pkg(){
 function install(){
 	exec "sudo apt-get remove -y realvnc-vnc-server geany geany-common thonny dillo vlc vlc-* gpicview geoclue-2.0 galculator qpdfview qpdfview-* mousepad rp-bookshelf debian-reference-en debian-reference-common"
 	exec "sudo apt autoremove -y"
-	exec "sudo apt-get update && sudo sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt autoremove -y"
+	# exec "sudo apt-get update && sudo sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt autoremove -y"
 	echo "cd /tmp" | dbg i r
 	cd /tmp
 	pkg freerdp2-x11
@@ -231,18 +231,21 @@ function install(){
 	pkg nmap
 	pkg git
 	pkg net-tools
+	pkg ifupdown
 	pkg fping
 	pkg unzip
 	pkg openvpn
 	pkg openvpn-systemd-resolved
 	pkg jq
 	pkg dnsutils
+	# Install & Configure TeamViewer
 	exec "wget https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb"
 	exec "sudo dpkg -i teamviewer-host_armhf.deb"
 	exec "sudo apt --fix-broken install -y"
 	TPASS=$(openssl rand -base64 12)
 	exec "sudo teamviewer --passwd \"${TPASS}\""
 	exec "sudo rm teamviewer-host_armhf.deb"
+	# Download resources
 	echo "cd /opt" | dbg i r
 	cd /opt
 	exec "sudo rm -r /opt/ThinClient-for-Pi"
@@ -256,9 +259,9 @@ function install(){
 	echo "cd /opt/rdp" | dbg i r
 	cd /opt/rdp
 	if [ -f "/usr/bin/rdp" ]; then
-		exec "sudo ./rdp -r"
+		exec "sudo ./rdp -vr"
 	fi
-	exec "sudo ./rdp -i"
+	exec "sudo ./rdp -vi"
 	# Configure System Services
 	exec "sudo systemctl disable vncserver"
 	exec "sudo systemctl disable openvpn"
@@ -272,7 +275,7 @@ function install(){
 	# 	exec "echo 'hdmi_drive=2' | sudo tee -a /boot/config.txt"
 	# fi
 	# Remove Black Borders
-	exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
+	# exec "sudo cat /boot/config.txt | sed -e 's/#disable_overscan=1/disable_overscan=1/g' | sudo tee /boot/config.txt"
 	# Configure pi User
 	echo "cd /home/pi/" | dbg i r
 	cd /home/pi/
@@ -319,6 +322,7 @@ function install(){
 	if [ "${USER}" != "" ]; then
 		exec "sudo adduser --disabled-password --gecos '' ${USER}"
 		exec "sudo usermod -aG sudo ${USER}"
+		exec "sudo usermod -aG video ${USER}"
 		exec "sudo deluser pi sudo"
 		exec "sudo passwd pi -d"
 		exec "sudo chown ${USER}:${USER} {/home/pi/.bashrc,/home/pi/.bash_profile,/home/pi/.bash_logout,/home/pi/.bash_aliases}"
