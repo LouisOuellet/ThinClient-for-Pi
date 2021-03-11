@@ -222,7 +222,7 @@ function pkg(){
 function install(){
 	exec "sudo apt-get remove -y realvnc-vnc-server geany geany-common thonny dillo vlc vlc-* gpicview geoclue-2.0 galculator qpdfview qpdfview-* mousepad rp-bookshelf debian-reference-en debian-reference-common"
 	exec "sudo apt autoremove -y"
-	# exec "sudo apt-get update && sudo sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt autoremove -y"
+	exec "sudo apt-get update && sudo sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt autoremove -y"
 	echo "cd /tmp" | dbg i r
 	cd /tmp
 	pkg freerdp2-x11
