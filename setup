@@ -266,6 +266,9 @@ function install(){
 	exec "sudo systemctl disable vncserver"
 	exec "sudo systemctl disable openvpn"
 	exec "sudo systemctl enable ssh"
+	# Configure Dual G1 Monitor
+	exec "sudo mkdir -p /usr/share/X11/xorg.conf.d"
+	exec "sudo cp /opt/ThinClient-for-Pi/usr/share/X11/xorg.conf.d/60-dualscreen.conf /usr/share/X11/xorg.conf.d/60-dualscreen.conf"
 	# Configure FAN GPIO
 	# # Enable HDMI-0
 	# if ! grep -q 'hdmi_force_hotplug=1' "/boot/config.txt"; then
