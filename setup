@@ -39,6 +39,7 @@ help_options="
 -u                     => Set Username
 -p                     => Set Password
 -o                     => Set openVPN
+-d                     => Set Static DNS Server [ex: -d '8.8.8.8 8.8.4.4']
 -v                     => Enable Verbose Mode
                           Input commands sent are stored in ${LOGDIR}
 "
@@ -238,13 +239,15 @@ function install(){
 	pkg openvpn-systemd-resolved
 	pkg jq
 	pkg dnsutils
+	pkg ntp
+	pkg ntpdate
 	# Install & Configure TeamViewer
 	exec "wget https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb"
 	exec "sudo dpkg -i teamviewer-host_armhf.deb"
 	exec "sudo apt --fix-broken install -y"
 	TPASS=$(openssl rand -base64 12)
-	exec "sudo teamviewer --passwd \"${TPASS}\""
 	exec "sudo rm teamviewer-host_armhf.deb"
+	exec "sudo teamviewer --passwd \"${TPASS}\""
 	# Download resources
 	echo "cd /opt" | dbg i r
 	cd /opt
@@ -266,6 +269,10 @@ function install(){
 	exec "sudo systemctl disable vncserver"
 	exec "sudo systemctl disable openvpn"
 	exec "sudo systemctl enable ssh"
+	exec "sudo systemctl start ssh"
+	exec "sudo systemctl enable ntp"
+	exec "sudo systemctl start ntp"
+	exec "sudo timedatectl set-ntp true"
 	# Configure Dual G1 Monitor
 	exec "sudo mkdir -p /usr/share/X11/xorg.conf.d"
 	exec "sudo cp /opt/ThinClient-for-Pi/usr/share/X11/xorg.conf.d/60-dualscreen.conf /usr/share/X11/xorg.conf.d/60-dualscreen.conf"
@@ -368,9 +375,10 @@ if [ "$0" != "./${scriptname}" ];then
   fatal "Script must be run from source folder."
 fi
 
-while getopts ":vu:p:h:o:" option; do
+while getopts ":vu:p:h:o:d:" option; do
 	case "${option}"
 		in
+			d) exec "echo 'static domain_name_servers=${OPTARG}' | sudo tee -a /etc/dhcpcd.conf";;
 			v) DEBUG=true;;
 			u) USER=$OPTARG;;
 			p) PASS=$OPTARG;;
