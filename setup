@@ -241,6 +241,7 @@ function install(){
 	pkg dnsutils
 	pkg ntp
 	pkg ntpdate
+	pkg ntpstat
 	# Install & Configure TeamViewer
 	exec "wget https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb"
 	exec "sudo dpkg -i teamviewer-host_armhf.deb"
@@ -273,6 +274,7 @@ function install(){
 	exec "sudo systemctl enable ntp"
 	exec "sudo systemctl start ntp"
 	exec "sudo timedatectl set-ntp true"
+	exec "echo 'Servers=0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org' | sudo tee -a /etc/systemd/timesyncd.conf"
 	# Configure Dual G1 Monitor
 	exec "sudo mkdir -p /usr/share/X11/xorg.conf.d"
 	exec "sudo cp /opt/ThinClient-for-Pi/usr/share/X11/xorg.conf.d/60-dualscreen.conf /usr/share/X11/xorg.conf.d/60-dualscreen.conf"
