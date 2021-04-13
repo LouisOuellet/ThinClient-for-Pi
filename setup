@@ -239,9 +239,12 @@ function install(){
 	pkg openvpn-systemd-resolved
 	pkg jq
 	pkg dnsutils
-	pkg ntp
-	pkg ntpdate
-	pkg ntpstat
+	pkg cups
+	pkg cups-pdf
+	pkg printer-driver-all
+	# pkg ntp
+	# pkg ntpdate
+	# pkg ntpstat
 	# Install & Configure TeamViewer
 	exec "wget https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb"
 	exec "sudo dpkg -i teamviewer-host_armhf.deb"
@@ -271,10 +274,11 @@ function install(){
 	exec "sudo systemctl disable openvpn"
 	exec "sudo systemctl enable ssh"
 	exec "sudo systemctl start ssh"
-	exec "sudo systemctl enable ntp"
-	exec "sudo systemctl start ntp"
+	# exec "sudo systemctl enable ntp"
+	# exec "sudo systemctl start ntp"
 	exec "sudo timedatectl set-ntp true"
-	exec "echo 'Servers=0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org' | sudo tee -a /etc/systemd/timesyncd.conf"
+	ntpServers=$(for ip in $(for i in {0.debian.pool.ntp.org,1.debian.pool.ntp.org,2.debian.pool.ntp.org,3.debian.pool.ntp.org};do nslookup $i | grep Address | egrep -v :: | egrep -v 127.0.0.53 | awk '{ print $2 }'; done); do printf "$ip ";done)
+	exec "echo 'Servers=${ntpServers}' | sudo tee -a /etc/systemd/timesyncd.conf"
 	# Configure Dual G1 Monitor
 	exec "sudo mkdir -p /usr/share/X11/xorg.conf.d"
 	exec "sudo cp /opt/ThinClient-for-Pi/usr/share/X11/xorg.conf.d/60-dualscreen.conf /usr/share/X11/xorg.conf.d/60-dualscreen.conf"
@@ -335,6 +339,7 @@ function install(){
 		exec "sudo adduser --disabled-password --gecos '' ${USER}"
 		exec "sudo usermod -aG sudo ${USER}"
 		exec "sudo usermod -aG video ${USER}"
+		exec "sudo usermod -aG lpadmin ${USER}"
 		exec "sudo deluser pi sudo"
 		exec "sudo passwd pi -d"
 		exec "sudo chown ${USER}:${USER} {/home/pi/.bashrc,/home/pi/.bash_profile,/home/pi/.bash_logout,/home/pi/.bash_aliases}"
@@ -346,9 +351,9 @@ function install(){
 	fi
 	# Setup openVPN
 	if [ "${OVPN}" != "" ]; then
-		exec "sudo mkdir -p /etc/openvpn/client"
-		exec "mv ${OVPN} /etc/openvpn/client/."
-		cd /etc/openvpn/client
+		exec "sudo mkdir -p /etc/openvpn/config"
+		exec "mv ${OVPN} /etc/openvpn/config/."
+		cd /etc/openvpn/config
 		if [[ ${OVPN} == *".tar.gz" ]]; then
 			exec "tar -xzvf *.tar.gz"
 		fi
@@ -359,7 +364,7 @@ function install(){
 			exec "unzip *.zip"
 		fi
 		exec "sudo rm {*.zip,*.tar,*.tar.gz,*.tar.bz2}"
-		exec "sudo chmod 600 /etc/openvpn/client/*"
+		exec "sudo chmod 600 /etc/openvpn/config/*"
 		exec "sudo cat *.ovpn | tee /etc/openvpn/raspvpn.conf"
 		# sudo nano /etc/openvpn/auth.txt
 		# sudo chmod 600 /etc/openvpn/auth.txt
